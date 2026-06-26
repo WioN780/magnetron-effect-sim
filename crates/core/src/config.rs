@@ -3,7 +3,7 @@
 use crate::constants::{C, E, M_E, MU_0};
 
 /// Configuration for the Magnetron apparatus (based on 2D2S vacuum diode).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MagnetronConfig {
     /// Anode radius (m)
     pub anode_radius: f64,

@@ -5,6 +5,7 @@ pub mod config;
 pub mod pusher;
 pub mod particles;
 pub mod diagnostics;
+pub mod poisson;
 
 pub fn get_physics_info() -> &'static str {
     "Magnetron Core Physics Engine"
