@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetron Effect Simulator</title>
+    <meta name="description" content="A state-of-the-art simulation dashboard for the Magnetron Effect. Ready for M1 solvers.">
+    <!-- Outfit & JetBrains Mono Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
+            --panel-bg: rgba(30, 41, 59, 0.4);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-primary: #c084fc; /* Lavender/purple */
+            --accent-glow: rgba(192, 132, 252, 0.15);
+            --accent-green: #2dd4bf; /* Teal/green */
+            --accent-cyan: #38bdf8; /* Blue/cyan */
+            --accent-cyan-glow: rgba(56, 189, 248, 0.15);
+            --accent-red: #fb7185; /* Coral */
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #ffffff, #c084fc, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(192, 132, 252, 0.2);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Wasm Output Callout (The Wow Component) */
+        .wasm-callout {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .wasm-callout::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+            opacity: 0.5;
+            transition: var(--transition-smooth);
+        }
+
+        .wasm-callout:hover {
+            border-color: rgba(192, 132, 252, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(192, 132, 252, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .wasm-status-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-red);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--accent-red);
+        }
+
+        .status-dot.active {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 12px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(45, 212, 191, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+        }
+
+        .wasm-val {
+            font-family: var(--font-mono);
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c084fc 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.2));
+            transition: var(--transition-smooth);
+        }
+
+        .wasm-val-sub {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        /* Architecture Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            background: var(--accent-cyan-glow);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            align-self: flex-start;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .cli-subcommands {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .cli-subcommand {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.35rem 0.6rem;
+            border-radius: 4px;
+            border-left: 3px solid var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        footer a:hover {
+            color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Magnetron</h1>
+            <p class="tagline">Advanced Physics Simulation Environment</p>
+        </header>
+
+        <!-- Main interactive demonstration -->
+        <main class="wasm-callout">
+            <div class="wasm-status-label" id="wasm-status-container">
+                <span class="status-dot" id="wasm-status-dot"></span>
+                <span id="wasm-status-text">Loading WebAssembly Crate...</span>
+            </div>
+            
+            <div class="wasm-val" id="wasm-val-display">--</div>
+
+            <p class="wasm-val-sub" id="wasm-val-description">
+                Initializing the physics engine workspace client. This card interfaces directly with 
+                <code>crates/wasm</code> using native Javascript modules.
+            </p>
+        </main>
+
+        <!-- Technical breakdown / Architecture grid -->
+        <section class="grid">
+            <!-- Core library card -->
+            <div class="card">
+                <span class="card-tag">crates/core</span>
+                <h3>Physics Core</h3>
+                <p>Pure mathematical model and differential solver system. Completely isolated from WASM/Web runtimes to ensure architectural purity and server-side execution capability.</p>
+            </div>
+
+            <!-- WASM Bridge card -->
+            <div class="card">
+                <span class="card-tag">crates/wasm</span>
+                <h3>WASM Bridge</h3>
+                <p>Translates native structures and simulations into browser-compatible buffers using <code>wasm-bindgen</code> bindings. Serves as the web client wrapper.</p>
+            </div>
+
+            <!-- CLI Card -->
+            <div class="card">
+                <span class="card-tag">crates/reference-cli</span>
+                <h3>Reference CLI</h3>
+                <p>Native command line interface using <code>clap</code> for batch sweep, local runs, and file export operations.</p>
+                <div class="cli-subcommands">
+                    <div class="cli-subcommand">sweep (M1 planned)</div>
+                    <div class="cli-subcommand">converge (M1 planned)</div>
+                    <div class="cli-subcommand">replay-export (M1 planned)</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div>Magnetron Simulation Workspace &copy; 2026</div>
+        <div>Workspace: <a href="https://github.com/WioN780/magnetron-effect-sim" target="_blank">magnetron-effect-sim</a></div>
+    </footer>
+
+    <!-- Wasm Module Loader script -->
+    <script type="module">
+        import init, { hello } from './pkg/magnetron_wasm.js';
+
+        const statusDot = document.getElementById('wasm-status-dot');
+        const statusText = document.getElementById('wasm-status-text');
+        const valDisplay = document.getElementById('wasm-val-display');
+        const descText = document.getElementById('wasm-val-description');
+
+        async function run() {
+            try {
+                // Initialize the wasm module
+                await init();
+                
+                // Call the hello function
+                const val = hello();
+                
+                // Update UI state
+                statusDot.classList.add('active');
+                statusText.textContent = 'WebAssembly loaded successfully';
+                valDisplay.textContent = val;
+                descText.innerHTML = `Successfully loaded <code>crates/wasm</code> and invoked <code>hello()</code>. The engine returned value <strong>${val}</strong>, confirming the WASM bridge compiles and is functional.`;
+            } catch (err) {
+                console.error(err);
+                statusText.textContent = 'Failed to load WebAssembly module';
+                valDisplay.textContent = 'ERR';
+                valDisplay.style.color = 'var(--accent-red)';
+                descText.textContent = 'An error occurred during WASM module initialization: ' + err.message;
+            }
+        }
+
+        run();
+    </script>
+</body>
+</html>

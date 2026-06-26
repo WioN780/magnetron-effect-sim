@@ -1,0 +1,11 @@
+[package]
+name = "magnetron-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# core is a plain library crate, std, NO wasm dependencies.
+ndarray = "0.15"
+rand = "0.8"
+rand_distr = "0.4"
+serde = { version = "1.0", features = ["derive"] }
