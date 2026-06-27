@@ -16,19 +16,19 @@ This report documents the statistical convergence of the anode fraction diagnost
 
 | Particle Count ($N$) | Mean Anode Fraction ($\bar{f}$) | Measured Std Dev ($s_N$) | Theoretical Std Error | Relative Error |
 | :---: | :---: | :---: | :---: | :---: |
-| 1000 | 0.46725 | 0.01278 | 0.01578 | 2.74% |
-| 5000 | 0.46550 | 0.00759 | 0.00705 | 1.63% |
-| 25000 | 0.46631 | 0.00338 | 0.00316 | 0.73% |
+| 1000 | 0.46350 | 0.01729 | 0.01577 | 3.73% |
+| 5000 | 0.46780 | 0.00730 | 0.00706 | 1.56% |
+| 25000 | 0.46781 | 0.00290 | 0.00316 | 0.62% |
 
 ### Trial Values
 
-- **$N = 1000$**: [0.4780, 0.4570, 0.4580, 0.4690, 0.4740, 0.4890, 0.4630, 0.4500]
-- **$N = 5000$**: [0.4610, 0.4710, 0.4578, 0.4756, 0.4618, 0.4722, 0.4698, 0.4548]
-- **$N = 25000$**: [0.4719, 0.4652, 0.4623, 0.4644, 0.4644, 0.4644, 0.4671, 0.4708]
+- **$N = 1000$**: [0.4850, 0.4560, 0.4690, 0.4610, 0.4760, 0.4490, 0.4790, 0.4330]
+- **$N = 5000$**: [0.4772, 0.4670, 0.4566, 0.4700, 0.4574, 0.4732, 0.4696, 0.4714]
+- **$N = 25000$**: [0.4636, 0.4662, 0.4727, 0.4661, 0.4709, 0.4684, 0.4681, 0.4663]
 
 ## Convergence Scaling
 
-- **Fitted log-log slope**: **-0.4128** (expected $\approx -0.5$ from $1/\sqrt{N}$ counting statistics)
+- **Fitted log-log slope**: **-0.5548** (expected $\approx -0.5$ from $1/\sqrt{N}$ counting statistics)
 A slope near $-0.5$ confirms that the standard deviation of our Monte Carlo diagnostic falls off as $1/\sqrt{N}$, as predicted by the Central Limit Theorem.
 
 ## Selection of Production Particle Count ($N_{prod}$)
