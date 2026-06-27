@@ -1,0 +1,10 @@
+[application]
+name = "ui"
+default_platform = "web"
+public_dir = "assets"
+
+[web.app]
+title = "Magnetron Effect Simulation"
+
+[web.watcher]
+watch_path = ["src", "assets"]
